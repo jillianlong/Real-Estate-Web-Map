@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset=utf-8 />
+    <title>Philadelphia Real Estate</title>
+    <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+
+    <script src="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.js"></script>
+
+    <link rel="stylesheet" href="http://cdn.leafletjs.com/leaflet/v0.7.7/leaflet.css" />
+    <link href='http://fonts.googleapis.com/css?family=Lato' rel='stylesheet' type='text/css'>
+
+
+
+    <style>
+        h1 {
+            font-size: 2.5em;
+            font-family: verdana;
+            text-align: center;
+            margin-right: 25px;
+            color: #F5F5F5;
+        }
+        h2 {
+            font-size: 1.5em;
+            font-family: verdana;
+            text-align: center;
+            margin-right: 25px;
+            color: #F5F5F5;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background: #778899;
+            font-family: verdana;
+            color: #778899;
+            font-weight: bold
+        }
+        header {
+            padding: 6px 10%;
+        }
+        
+        #map {
+            width: 95%;
+            height: 540px;
+            margin: 10px auto;
+        }
+        footer {
+            padding: 6px 10%;
+            width: 80%;
+            text-align: center;
+        }
+        p {
+            font-size: 1.5em;
+            color: #F5F5F5;
+        }
+        button{
+            border-radius: 3px;
+            font-size: 16px;
+            text-align: center;
+            align-content: center;
+            align-items: center;
+            font-family: verdana;
+            font-weight: bold;
+            display: inline-grid;
+            width: 150px;
+        }
+        button:hover{
+            background-color: black;
+            color: white;
+        }
+       
+     
+        /* Additional style rules go here! */
+        
+
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1>Philadelphia Real Estate</h1>
+        <h2>Location-Based Web Map</h2>
+        <button onclick="bellaVista()">Bella Vista</button>
+        <button onclick="centerCity()">Center City</button>
+        <button onclick="springGarden()">Spring Garden</button>
+        <button onclick="fishtown()">Fishtown</button>
+        <button onclick="germantown()">Germantown</button>
+        <button onclick="kensington()">Kensington</button>
+        <button onclick="graysFerry()">Gray's Ferry</button>
+        <button onclick="noLibs()">Northern Liberties</button>
+        <button onclick="pointBreeze()">Point Breeze</button>
+        <button onclick="portRichmond()">Port Richmond</button>
+        <button onclick="manayunk()">Manayunk</button>
+        <button onclick="universityCity()">University City</button>
+    </header>
+
+    <div id='map'></div>
+
+    <footer>
+        <p>Map authored by Jillian Long</p>
+        <p><i>Mapping Philadelphia Real Estate</i></p>
+        <p> Buying a house can be scary! Use this interactive map to educate your new buyers about Philadelphia neighborhoods. 
+        </p>
+    </footer>
+    
+    <script src="philaNeighborhoods.js"></script>
+    <script src="elem.js"></script>
+    <script src="farmersMarkets.js"></script>
+    <script src="indigo.js"></script>
+    <script src="parks.js"></script>
+    <script src="mflSubway.js"></script>
+    <script src="broadSubway.js"></script>
+
+    <script>
+   
+        
+var map = L.map('map', {
+    center: [40.0084, -75.1088],
+    zoom: 11,
+});
+  
+        
+var tiles = L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}.png', {
+	attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>',
+	subdomains: 'abcd',
+	maxZoom: 19
+});
+map.addLayer(tiles);
+
+
+
+var phila = L.geoJson(philaNeighborhood,{
+
+    style: function(feature) {
+        return {
+            color: 'gray',
+            weight: 2,
+            fillColor: 'gray',
+            fillOpacity: .1,
+            stroke: .5
+        } 
+    },
+    onEachFeature: function(feature,layer){
+        layer.on('mouseover', function() {
+            layer.setStyle({
+                fillColor: '#FEFB01',
+                fillOpacity: .25
+            });
+    });
+        layer.on('mouseout', function() {
+            layer.setStyle({
+                color: 'gray',
+                fillColor: 'gray',
+                fillOpacity: .1
+            })
+        }) 
+    
+    layer.bindPopup("<b style='color:#808080; text-shadow: 0px 0px 1px #333;'>" + "Neighborhood: " + "<br>" + feature.properties.Phila_trac);
+    }
+    }).addTo(map);
+
+var mfl = L.geoJson(mfl, {
+    pointToLayer: function(feature,latlng){
+        return L.marker(latlng,
+                       {icon : L.icon({
+                           iconUrl: 'septa_icon.png',
+                           iconSize: [9,9]
+                       })
+                       });
+    },
+    onEachFeature: function(feature,layer){
+        layer.on('mouseover', function() {
+            layer.bindPopup("<b style='color:#0000FF; text-shadow: 0px 0px 1px #333;'>" + "Station: " + "<br>" + feature.properties.Station);
+    })
+    }
+    
+    }).addTo(map);
+var bsl = L.geoJson(broad, {
+    pointToLayer: function(feature,latlng){
+        return L.marker(latlng,
+                       {icon : L.icon({
+                           iconUrl: 'septa_icon.png',
+                           iconSize: [9,9]
+                       })
+                       });
+    },
+        onEachFeature: function(feature,layer){
+        layer.on('mouseover', function() {
+            layer.bindPopup("<b style='color:#DD2F2F; text-shadow: 0px 0px 1px #333;'>" + "Station: " + "<br>" + feature.properties.Station);
+    })
+    }
+}).addTo(map);
+
+var parks = L.geoJson(parks, {
+        pointToLayer: function(feature,latlng) {
+            return L.marker(latlng,
+                       {icon : L.icon({
+                           iconUrl: 'tree.png',
+                           iconSize: [12,12]
+                       })
+                       });
+    },
+        onEachFeature: function(feature,layer){
+        layer.on('mouseover', function() {
+            layer.bindPopup("<b style='color:#08A630; text-shadow: 0px 0px 1px #333;'>"  + feature.properties.NAME);
+    })
+    }
+}).addTo(map);
+        
+var elemSchools = L.geoJson(elem, {
+    pointToLayer: function(feature,latlng){
+        return L.marker(latlng,
+                       {icon : L.icon({
+                           iconUrl: 'school.png',
+                           iconSize: [11,11]
+                       })
+                       });
+    },
+        onEachFeature: function(feature,layer){
+        layer.on('mouseover', function() {
+            layer.bindPopup("<b style='color:#010C0D; text-shadow: 0px 0px 1px #333;'>"  + feature.properties.FACIL_NAME + "<br>" + feature.properties.FACIL_ADDR);      
+    })
+        }
+}).addTo(map);
+
+var market = L.geoJson(farmersMarket,{
+    pointToLayer: function(feature,latlng){
+        return L.marker(latlng,
+                       {icon : L.icon({
+                           iconUrl: 'carrot.png',
+                           iconSize: [11,11]
+                       })
+                       });
+    },
+    onEachFeature: function(feature,layer){
+        layer.on('mouseover', function() {
+            layer.bindPopup("<b style='color:#EE730C; text-shadow: 0px 0px 1px #333;'>" + feature.properties.NAME + "<br>" + feature.properties.ADDRESS + "<br>" + "Months Open: " + feature.properties.MONTHS + "<br>" + "Days Open: " + 
+            feature.properties.DAYS + "<br>" + "Time: " + feature.properties.TIME);
+    })
+    }
+    
+}).addTo(map);
+
+var bike = L.geoJson(indigo,{
+    pointToLayer: function(feature,latlng){
+        return L.marker(latlng,
+                       {icon : L.icon({
+                           iconUrl: 'bike.png',
+                           iconSize: [13,13]
+                           
+                       })
+                       });
+    },
+    onEachFeature: function(feature,layer){
+        layer.on('mouseover', function() {
+            layer.bindPopup("<b style='color:#16DDE8; text-shadow: 0px 0px 1px #333;'>" + "Location: " + feature.properties.addressStreet);
+    })
+    }
+    
+}).addTo(map);
+
+
+var commonStyles = {
+            weight: 1,
+            stroke: .5,
+            fillOpacity: .8,
+            radius: 4
+        };
+ 
+
+
+var sourcesLayers = {
+    "<b style='color:#746B6B; text-shadow: 0px 0px 1px #333;'>Neighborhood</b>": phila,
+    "<b style='color:#08A630; text-shadow: 0px 0px 1px #333;'>Parks</b>": parks,
+    "<b style='color:#010C0D; text-shadow: 0px 0px 1px #333;'>Elementary Schools</b>": elemSchools,
+    "<b style='color:#0000FF; text-shadow: 0px 0px 1px #333;'>Market Frankford Line</b>": mfl,
+    "<b style='color:#DD2F2F; text-shadow: 0px 0px 1px #333;'>Broad Street Line</b>": bsl,
+    "<b style='color:#EE730C; text-shadow: 0px 0px 1px #333;'>Farmer's Market</b>": market,
+    "<b style='color:#16DDE8; text-shadow: 0px 0px 1px #333;'>Indego</b>": bike
+    
+    };
+L.control.layers(null, sourcesLayers, { collapsed:true }).addTo(map); 
+
+ // button function
+    function bellaVista(){
+            map.setView([39.9392, -75.1594], 15);
+        }
+    function fishtown(){
+            map.setView([39.9710, -75.1285], 15);
+        }
+    function kensington(){
+            map.setView([39.9817, -75.1281], 15);
+        }
+    function graysFerry(){
+            map.setView([39.9368, -75.1939], 15);
+        }
+    function noLibs(){
+            map.setView([39.9637, -75.1399], 15);
+        }
+    function pointBreeze(){
+            map.setView([39.9338, -75.1808], 15);
+        }
+    function portRichmond(){
+            map.setView([39.9885, -75.1063], 15);
+        }
+    function manayunk(){
+            map.setView([40.0260, -75.2231], 15);
+        }
+    function universityCity(){
+            map.setView([39.9536, -75.1987], 15);
+        }
+    function springGarden(){
+            map.setView([39.9675, -75.1691], 15);
+        }
+    function germantown(){
+            map.setView([40.0285, -75.1750], 15);
+        }
+    function centerCity(){
+            map.setView([39.9509, -75.1575], 15);
+        }
+map.on('click', function(e){
+    map.setView ([40.0084, -75.1088], 11)
+});
+
+              
+    </script>
+    
+</body>
+
+</html>
